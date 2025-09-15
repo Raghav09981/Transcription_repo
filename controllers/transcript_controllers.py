@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException
 import constants.status_code_constants as status_code
 from repository.transcriprion_repo import (
     create_meeting,
     get_all_meetings,
     get_particular_meeting,
-    delete_meeting,
+    archive_meeting,
     update_meeting
 )
 
@@ -16,9 +16,9 @@ from typing import List
 router = APIRouter(prefix="/meetings", tags=MeetingCreate)
 
 
-def create(file: UploadFile, meeting: MeetingCreate):
+def create(meeting: MeetingCreate):
     new_meeting = create_meeting(
-        meeting_data=meeting.dict(), audio_file=file)
+        meeting_data=meeting.dict())
 
     if not new_meeting:
         raise HTTPException(
@@ -49,7 +49,7 @@ def get_all(search: str = None) -> BaseResponse[List[MeetingResponse]]:
     )
 
 
-def get_particular(meeting_id: str) -> BaseResponse[MeetingResponse]:
+def get_particular(meeting_id: str) -> BaseResponse[list[MeetingResponse]]:
     if validate_id(meeting_id=meeting_id) is False:
         raise HTTPException(
             status_code=status_code.HTTP_BAD_REQUEST,
@@ -61,8 +61,8 @@ def get_particular(meeting_id: str) -> BaseResponse[MeetingResponse]:
             status_code=status_code.HTTP_NOT_FOUND,
             detail="No meeting detail not found"
         )
-    return BaseResponse[MeetingResponse](
-        data=MeetingResponse(**meeting),
+    return BaseResponse[list[MeetingResponse]](
+        data=[MeetingResponse(**meeting)],
         message="Meeting returned successfully",
         statusCode=status_code.HTTP_OK
     )
@@ -88,13 +88,13 @@ def update(meeting_id: str, meeting: MeetingCreate) -> BaseResponse[MeetingCreat
     )
 
 
-def delete(meeting_id: str) -> BaseResponse[None]:
+def archive(meeting_id: str) -> BaseResponse[None]:
     if validate_id(meeting_id=meeting_id) is False:
         raise HTTPException(
             status_code=status_code.HTTP_BAD_REQUEST,
             detail="Invalid Id detected"
         )
-    deleted = delete_meeting(meeting_id == meeting_id)
+    deleted = archive_meeting(meeting_id=meeting_id)
     if not deleted:
         raise HTTPException(
             status_code=status_code.HTTP_NOT_FOUND,
@@ -102,6 +102,6 @@ def delete(meeting_id: str) -> BaseResponse[None]:
         )
     return BaseResponse[None](
         data=None,
-        message="Meeting deleted successfully",
+        message="Meeting archived successfully",
         statusCode=status_code.HTTP_OK
     )

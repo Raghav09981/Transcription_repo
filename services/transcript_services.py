@@ -7,9 +7,8 @@ import math
 from utils.file_utils import save_transcription_to_file
 from configs.file_configs import MODEL_NAME
 
-model_name = MODEL_NAME
-processor = WhisperProcessor.from_pretrained(model_name)
-model = WhisperForConditionalGeneration.from_pretrained(model_name)
+processor = WhisperProcessor.from_pretrained(MODEL_NAME)
+model = WhisperForConditionalGeneration.from_pretrained(MODEL_NAME)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 model = model.to(device)

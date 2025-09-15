@@ -18,8 +18,9 @@ def validate_meeting_name(title: str) -> str:
     if len(stripped_title) > 25:
         raise ValueError("Name cannot exceed 25 characters.")
 
-    if not stripped_title.replace(" ", "").isalpha():
-        raise ValueError("Name can only contain letters and spaces.")
+    if not stripped_title.replace(" ", "").isalnum:
+        raise ValueError(
+            "Title can only contain letters, numbers, and spaces.")
 
     return stripped_title
 

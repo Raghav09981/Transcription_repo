@@ -4,7 +4,9 @@ from schemas.response_schema import BaseResponse
 from constants.status_code_constants import status as status_code
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
+from fastapi.staticfiles import StaticFiles
+from routes.upload_file_routes import upload_file_routes
+import os
 
 app = FastAPI()
 
@@ -13,6 +15,12 @@ app.include_router(
     prefix="/meetings",
     tags=["Meetings"]
 )
+app.include_router(upload_file_routes, prefix="/files", tags=["Uploads"])
+
+os.makedirs("uploads", exist_ok=True)
+
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.exception_handler(RequestValidationError)

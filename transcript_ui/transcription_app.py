@@ -1,9 +1,8 @@
 import streamlit as st
 import requests
-from configs.file_configs import API_URL
 
 MAX_FILE_SIZE_MB = 5
-
+API_URL = "http://localhost:8080/meetings"
 st.title("🎤 Meeting Transcription Service")
 st.info(f"Upload only WAV files (Max size: {MAX_FILE_SIZE_MB} MB)")
 
