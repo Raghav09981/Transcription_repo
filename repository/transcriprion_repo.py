@@ -11,9 +11,12 @@ def create_meeting(meeting_data: dict):
     audio_path = meeting_data.get("audio_recording_url")
     if audio_path:
         transcript_data = transcript_audio(
-            audio_file_path=f".{audio_path}")
+            audio_file_path=f".{audio_path}"
+        )
         meeting_data['notes'] = transcript_data.get("transcription", "")
-
+        print(transcript_data.get("file_path", ""))
+        meeting_data['file_path'] = transcript_data.get(
+            "file_path", "")
     result = transcript_collection.insert_one(meeting_data)
     meeting_data["id"] = str(result.inserted_id)
     return meeting_data
@@ -37,12 +40,14 @@ def get_all_meetings(search: str = None):
             "id": {"$toString": "$_id"},
             "title": 1,
             "meeting_date": 1,
-            "meeting_time": 1,
             "meeting_duration": 1,
             "location": 1,
             "notes": 1,
+            "audio_recording_url": 1,
+            "file_path": 1,
             "created_at": 1,
-            "updated_at": 1
+            "updated_at": 1,
+            "is_archived": {"$ifNull": ["$is_archived", False]}
         }
     })
 
@@ -57,12 +62,14 @@ def get_particular_meeting(meeting_id: str):
                 "id": {"$toString": "$_id"},
                 "title": 1,
                 "meeting_date": 1,
-                "meeting_time": 1,
                 "meeting_duration": 1,
                 "location": 1,
                 "notes": 1,
+                "audio_recording_url": 1,
+                "file_path": 1,
                 "created_at": 1,
-                "updated_at": 1
+                "updated_at": 1,
+                "is_archived": {"$ifNull": ["$is_archived", False]}
             }
         }
     ]

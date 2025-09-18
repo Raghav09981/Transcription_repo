@@ -13,7 +13,7 @@ def create_meeting_route(meeting: MeetingCreate):
     return transcript_controllers.create(meeting=meeting)
 
 
-@meeting_routes.get("/{meeting_id}", response_model=BaseResponse[List[MeetingResponse]])
+@meeting_routes.get("", response_model=BaseResponse[List[MeetingResponse]])
 def get_all_meeting_route(search: str = Query(None, description="Search for meeting")):
     return transcript_controllers.get_all(search=search)
 

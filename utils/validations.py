@@ -31,5 +31,18 @@ def validate_minutes(minutes: int) -> int:
     return minutes
 
 
+def validate_meeting_date(meeting_date: int) -> int:
+    if not isinstance(meeting_date, int):
+        raise ValueError("meeting_date must be an integer in milliseconds")
+    if meeting_date <= 0:
+        raise ValueError(
+            "meeting_date must be a valid epoch in milliseconds (>0)")
+    try:
+        dt = datetime.fromtimestamp(meeting_date / 1000.0)
+    except Exception:
+        raise ValueError("meeting_date must be a valid epoch in milliseconds")
+    return meeting_date
+
+
 def validate_id(meeting_id: str) -> bool:
     return ObjectId.is_valid(meeting_id)

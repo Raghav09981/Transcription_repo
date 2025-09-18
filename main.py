@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from routes.upload_file_routes import upload_file_routes
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -16,6 +17,14 @@ app.include_router(
     tags=["Meetings"]
 )
 app.include_router(upload_file_routes, prefix="/files", tags=["Uploads"])
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST, PUT, DELETE, OPTIONS, etc.
+    allow_headers=["*"],  # Accept all headers
+)
 
 os.makedirs("uploads", exist_ok=True)
 

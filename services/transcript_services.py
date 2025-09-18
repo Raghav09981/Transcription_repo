@@ -1,57 +1,42 @@
-import torch
-import soundfile as sf
-import numpy as np
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
-import torchaudio
-import math
-from utils.file_utils import save_transcription_to_file
-from configs.file_configs import MODEL_NAME
+import google.generativeai as genai
+import os
 
-processor = WhisperProcessor.from_pretrained(MODEL_NAME)
-model = WhisperForConditionalGeneration.from_pretrained(MODEL_NAME)
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-model = model.to(device)
+genai.configure(api_key="AIzaSyD3z_Ip7MxyFptvES9lKZfOvtt_y_F3o8k")
+gemini_model = genai.GenerativeModel("gemini-1.5-flash")
 
 
-def transcript_audio(audio_file_path: str) -> dict:
-    speech, sample_rate = sf.read(audio_file_path)
-    if sample_rate != 16000:
-        resampler = torchaudio.transforms.Resample(
-            orig_freq=sample_rate, new_freq=16000)
-        speech = resampler(torch.from_numpy(speech).float()).numpy()
-        sample_rate = 16000
+def transcript_audio(audio_file_path: str, save_dir: str = "outputs") -> dict:
+    # Ensure save directory exists (auto-create if missing)
+    os.makedirs(save_dir, exist_ok=True)
 
-    if len(speech.shape) > 1:
-        speech = np.mean(speech, axis=1)
+    # Read audio file
+    with open(audio_file_path, "rb") as f:
+        audio_bytes = f.read()
 
-    chunk_size = 30  # seconds chunk file
-    samples_per_chunk = chunk_size*16000
-    num_chunks = math.ceil(len(speech)/samples_per_chunk)
-    chunks = [
-        speech[i*samples_per_chunk: (i+1)*samples_per_chunk] for i in range(num_chunks)]
+    # Ask Gemini
+    response = gemini_model.generate_content([
+        {"mime_type": "audio/wav", "data": audio_bytes},
+        """Please:
+        1. Transcribe this meeting audio
+        2. Summarize into structured meeting minutes (Title, Summary, Key Points)
+        3. Extract a bullet list of actionables (with owners if mentioned)"""
+    ])
 
-    transcriptions = []
+    text_output = response.text if hasattr(response, "text") else str(response)
 
-    for chunk in chunks:
-        if len(chunk) < samples_per_chunk:
-            padding = np.zeros(samples_per_chunk-len(chunk))
-            chunk = np.concatenate([chunk, padding])
+    # Save in a clean .txt file
+    filename = os.path.splitext(os.path.basename(audio_file_path))[
+        0] + "_minutes.txt"
+    file_path = os.path.join(save_dir, filename)
 
-        input_features = processor(
-            chunk, sampling_rate=16000, return_tensors="pt").input_features.to(device)
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write("📌 Meeting Minutes\n")
+        f.write("====================\n\n")
+        f.write(text_output.strip())
 
-        with torch.no_grad():
-            generated_ids = model.generate(input_features=input_features)
+    print(f"💾 Saved structured meeting notes at: {file_path}")
 
-        text = processor.batch_decode(
-            generated_ids, skip_special_tokens=True)[0]
-        transcriptions.append(text)
-
-    full_transcription = " ".join(transcriptions)
-    file_path = save_transcription_to_file(
-        transcription_text=full_transcription)
     return {
-        "transcription": full_transcription,
+        "transcription": text_output,
         "file_path": file_path
     }
