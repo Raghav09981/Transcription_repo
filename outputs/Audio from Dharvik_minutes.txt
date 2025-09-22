@@ -1,0 +1,34 @@
+📌 Meeting Minutes
+====================
+
+## Transcription of Audio:
+
+File formats: Users may upload .wav, .mp3, .m4a, .ogg, etc. Some formats may be corrupted or have codecs your pipeline doesn't support.
+
+File size limit: Long meetings (from 1 hour to 3 hours) create very large files. You might need to chunk audio into smaller segments.
+
+Sampling rates: Low-quality audio (8kHz telephony) versus 44.1kHz studio. Make sure your transcription supports multiple rates.
+
+Detecting who is speaking.  Jay Mata Di.
+
+
+## Meeting Minutes
+
+**Title:** Audio Transcription System - File Format and Size Considerations
+
+**Summary:** This meeting discussed limitations and considerations for the audio transcription system, focusing on file formats, file sizes, and sampling rates to ensure accurate transcriptions.  The system's ability to handle various audio qualities and speaker identification were also reviewed.
+
+**Key Points:**
+
+* **Supported File Formats:** The system accepts various audio formats (.wav, .mp3, .m4a, .ogg etc.), but some might be corrupted or incompatible due to codec issues.
+* **File Size Limits:**  Long recordings (1-3 hours) generate large files, necessitating audio chunking into smaller segments for processing.
+* **Sampling Rate Compatibility:**  The system needs to support a range of audio quality (8kHz - telephony quality to 44.1kHz - studio quality).  Compatibility with multiple sampling rates is crucial for accurate transcriptions.
+* **Speaker Identification:**  The system needs to accurately identify speakers within the audio.
+
+
+## Actionable Items:
+
+* **Investigate codec compatibility issues:** Identify and address issues related to unsupported codecs.  (Owner: Not assigned)
+* **Implement or improve audio chunking functionality:**  Develop a user-friendly method for splitting large audio files into smaller, manageable segments. (Owner: Not assigned)
+* **Verify and improve support for multiple sampling rates:** Ensure the system accurately transcribes audio with varying sampling rates,  (8kHz to 44.1kHz). (Owner: Not assigned)
+* **Enhance speaker identification accuracy:**  Improve the system's ability to identify and differentiate between multiple speakers. (Owner: Not assigned)

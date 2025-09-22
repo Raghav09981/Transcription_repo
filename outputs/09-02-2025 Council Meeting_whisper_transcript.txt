@@ -1,0 +1,9 @@
+🎤 Whisper Transcription
+========================
+
+Model: openai/whisper-base
+Audio File: 09-02-2025 Council Meeting.mp3
+Chunks Processed: 52
+
+Transcription:
+--------------------------------------------------

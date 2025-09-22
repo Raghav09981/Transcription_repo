@@ -21,7 +21,7 @@ jobs:
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag meeting-assistant:0.0.1-ai
+      run: docker build . --file Dockerfile --tag dharvikvayuz/meeting-assistant:0.0.1-ai
       
     - name: Docker Push
-      run: docker push meeting-assistant:0.0.1-ai
+      run: docker push dharvikvayuz/meeting-assistant:0.0.1-ai
