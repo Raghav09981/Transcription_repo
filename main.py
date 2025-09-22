@@ -17,12 +17,12 @@ app = FastAPI()
 
 app.include_router(
     meeting_routes,
-    prefix="/meetings",
+    prefix="/assistant/meetings",
     tags=["Meetings"]
 )
-app.include_router(upload_file_routes, prefix="/files", tags=["Uploads"])
-app.include_router(whisper_routes, prefix="", tags=["Whisper Transcription"])
-app.include_router(calendar_routes, prefix="", tags=["Calendar"])
+app.include_router(upload_file_routes, prefix="/assistant/files", tags=["Uploads"])
+app.include_router(whisper_routes, prefix="/assistant", tags=["Whisper Transcription"])
+app.include_router(calendar_routes, prefix="/assistant", tags=["Calendar"])
 
 app.add_middleware(
     CORSMiddleware,
