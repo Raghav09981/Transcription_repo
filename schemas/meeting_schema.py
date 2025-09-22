@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator, Field
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from datetime import datetime
 from utils.validations import validate_meeting_name, validate_minutes, validate_meeting_date
 
@@ -10,6 +10,8 @@ class MeetingSchema(BaseModel):
     meeting_duration: Optional[int] = None
     location: Optional[str] = None
     audio_recording_url: Optional[str] = None
+    owner: Optional[str] = None
+    attendees: Optional[List[str]] = Field(default_factory=list)
 
     @field_validator("title")
     def validateTitle(cls, v):

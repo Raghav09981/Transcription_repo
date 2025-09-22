@@ -1,11 +1,19 @@
-fastapi==0.111.0
+fastapi==0.115.9        # required by chromadb
 uvicorn[standard]==0.23.1
 pydantic==2.5.1
 transformers==4.34.0
 torch==2.2.0
 torchaudio==2.2.0
 soundfile==0.13.1
+librosa==0.10.1
 numpy==2.0.2
-pymongo==5.3.2
+pymongo==4.7.2
 dnspython==2.5.0
-python-multipart
+python-multipart==0.0.9
+chromadb==1.0.6
+google-generativeai
+aiofiles
+google-api-python-client==2.143.0
+google-auth==2.35.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1

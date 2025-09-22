@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from routes.transcription_routes import meeting_routes
+from routes.calendar_routes import calendar_routes
+from routes.whisper_routes import whisper_routes
 from schemas.response_schema import BaseResponse
 from constants.status_code_constants import status as status_code
 from fastapi.exceptions import RequestValidationError
@@ -8,7 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from routes.upload_file_routes import upload_file_routes
 import os
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s - %(message)s')
 app = FastAPI()
 
 app.include_router(
@@ -17,6 +21,8 @@ app.include_router(
     tags=["Meetings"]
 )
 app.include_router(upload_file_routes, prefix="/files", tags=["Uploads"])
+app.include_router(whisper_routes, prefix="", tags=["Whisper Transcription"])
+app.include_router(calendar_routes, prefix="", tags=["Calendar"])
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,9 +33,11 @@ app.add_middleware(
 )
 
 os.makedirs("uploads", exist_ok=True)
+os.makedirs("static", exist_ok=True)
 
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.exception_handler(RequestValidationError)

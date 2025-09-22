@@ -105,3 +105,74 @@ def archive(meeting_id: str) -> BaseResponse[None]:
         message="Meeting archived successfully",
         statusCode=status_code.HTTP_OK
     )
+
+
+ 
+
+
+def set_participants(meeting_id: str, owner: str, attendees: list[str]) -> BaseResponse[MeetingResponse]:
+    if validate_id(meeting_id=meeting_id) is False:
+        raise HTTPException(
+            status_code=status_code.HTTP_BAD_REQUEST,
+            detail="Invalid Id detected"
+        )
+    from repository.transcriprion_repo import set_owner_and_attendees
+    updated = set_owner_and_attendees(meeting_id=meeting_id, owner=owner, attendees=attendees)
+    if not updated:
+        raise HTTPException(
+            status_code=status_code.HTTP_NOT_FOUND,
+            detail="Meeting not found"
+        )
+    return BaseResponse[MeetingResponse](
+        data=MeetingResponse(**updated),
+        message="Participants updated successfully",
+        statusCode=status_code.HTTP_OK
+    )
+
+
+def auto_schedule_meeting(meeting_id: str) -> BaseResponse[dict]:
+    if validate_id(meeting_id=meeting_id) is False:
+        raise HTTPException(
+            status_code=status_code.HTTP_BAD_REQUEST,
+            detail="Invalid Id detected"
+        )
+    from repository.transcriprion_repo import get_particular_meeting, update_meeting
+    from services.ai_actions_service import analyze_for_meeting_action
+    from services.calendar_service import create_calendar_event
+
+    meeting = get_particular_meeting(meeting_id=meeting_id)
+    if not meeting:
+        raise HTTPException(status_code=status_code.HTTP_NOT_FOUND, detail="Meeting not found")
+
+    analysis = analyze_for_meeting_action(notes=meeting.get("notes", ""))
+    if not analysis.get("should_schedule"):
+        return BaseResponse[dict](
+            data=analysis,
+            message="No meeting scheduling action detected",
+            statusCode=status_code.HTTP_OK
+        )
+
+    # Collect participants
+    attendees = meeting.get("attendees", []) or []
+    owner = meeting.get("owner")
+    if owner:
+        attendees = list({owner, *attendees})
+
+    event = create_calendar_event(
+        title=analysis.get("title") or meeting.get("title") or "Follow-up Meeting",
+        description=analysis.get("description") or "",
+        start_time_iso=analysis.get("start_time_iso"),
+        duration_minutes=analysis.get("duration_minutes", 30),
+        attendees=attendees
+    )
+
+    # Persist event info on meeting
+    updated = update_meeting(meeting_id=meeting_id, update_meeting_data={
+        "calendar_event": event
+    })
+
+    return BaseResponse[dict](
+        data={"analysis": analysis, "event": event},
+        message="Auto-schedule completed",
+        statusCode=status_code.HTTP_OK
+    )

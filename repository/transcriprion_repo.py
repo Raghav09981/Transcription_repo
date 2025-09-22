@@ -45,6 +45,9 @@ def get_all_meetings(search: str = None):
             "notes": 1,
             "audio_recording_url": 1,
             "file_path": 1,
+            "owner": 1,
+            "attendees": {"$ifNull": ["$attendees", []]},
+            "attendee_count": {"$size": {"$ifNull": ["$attendees", []]}},
             "created_at": 1,
             "updated_at": 1,
             "is_archived": {"$ifNull": ["$is_archived", False]}
@@ -67,6 +70,9 @@ def get_particular_meeting(meeting_id: str):
                 "notes": 1,
                 "audio_recording_url": 1,
                 "file_path": 1,
+                "owner": 1,
+                "attendees": {"$ifNull": ["$attendees", []]},
+                "attendee_count": {"$size": {"$ifNull": ["$attendees", []]}},
                 "created_at": 1,
                 "updated_at": 1,
                 "is_archived": {"$ifNull": ["$is_archived", False]}
@@ -85,7 +91,8 @@ def update_meeting(meeting_id: str, update_meeting_data: dict):
         return_document=ReturnDocument.AFTER
     )
     if result:
-        result["_id"] = str(result["_id"])
+        result["id"] = str(result["_id"])
+        result.pop("_id", None)
     return result
 
 
@@ -100,3 +107,30 @@ def archive_meeting(meeting_id: str) -> bool:
         }
     )
     return result.modified_count > 0
+
+
+ 
+
+
+def set_owner_and_attendees(meeting_id: str, owner: str, attendees: list[str]):
+    attendees = [a for a in attendees if isinstance(a, str) and a.strip()]
+    update_doc = {
+        "$set": {
+            "owner": owner,
+            "updated_at": now()
+        }
+    }
+    if attendees:
+        update_doc["$set"]["attendees"] = attendees
+    else:
+        update_doc["$unset"] = {"attendees": ""}
+    result = transcript_collection.find_one_and_update(
+        {"_id": ObjectId(meeting_id)},
+        update_doc,
+        return_document=ReturnDocument.AFTER
+    )
+    if result:
+        # Normalize id field for response models
+        result["id"] = str(result["_id"]) if isinstance(result.get("_id"), ObjectId) else str(result.get("_id"))
+        result.pop("_id", None)
+    return result
