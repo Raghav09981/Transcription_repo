@@ -11,8 +11,7 @@ COPY requirements.txt .
 RUN python -m pip install --upgrade pip
 RUN pip install --default-timeout=100 -i https://pypi.org/simple -r requirements.txt
 
-# Copy the secret into the container
-COPY client_secret_1019005830189-pmjdbmhte1ueqp7j07rqhq2qfn2jkpr5.apps.googleusercontent.com.json
+
 
 # Copy the rest of the project
 COPY . .
